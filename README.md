@@ -2,107 +2,156 @@
 
 # Vendor Intelligence Agent
 
-**An AI agent with long-term memory for finance & support teams**
+**Persistent vendor memory for AP exception resolution**
 
 [![Status](https://img.shields.io/badge/status-hackathon%20project-blueviolet)]()
-[![Domain](https://img.shields.io/badge/domain-enterprise%20AI-0A66C2)]()
-[![Memory](https://img.shields.io/badge/powered%20by-long--term%20memory-success)]()
+[![Domain](https://img.shields.io/badge/domain-accounts%20payable-0A66C2)]()
+[![Memory](https://img.shields.io/badge/pattern-retain%20%C2%B7%20recall%20%C2%B7%20reflect-success)]()
 
-[Overview](#overview) · [The Problem](#the-problem) · [What It Remembers](#what-it-remembers) · [How It Works](#how-it-works) · [Example](#example) · [images](#images) · [Feedback](#open-questions)
+[Overview](#overview) · [The Problem](#the-problem) · [What Thread Remembers](#what-thread-remembers) · [How It Works](#how-it-works) · [Example](#example) · [Demo Scope](#demo-scope) · [Docs](#docs)
 
 </div>
 
 ---
 
+## Meet Thread
+
+**Thread** is the agent inside the product.
+
+> **Every exception has a thread.**
+
+A screw thread is what holds two parts together. A case thread is what connects an invoice, its evidence, the decision, and the outcome. Thread follows both — so the next analyst inherits the reasoning, not just the result.
+
+Thread is not a chatbot bolted onto a dashboard. It runs automatically on every new invoice, surfaces what needs attention with a notification badge, and explains itself only when asked.
+
+---
+
 ## Overview
 
-A **Vendor Intelligence Agent** powered by long-term memory, built as a hackathon project to explore how AI agents can support enterprise finance and customer support operations.
+Accounts payable teams process large volumes of routine invoices, but **exceptions** — price and quantity mismatches, duplicate billing, tax discrepancies, missing approvals and unusual vendor practices — consume disproportionate attention.
 
-> The interesting part is not the chatbot itself, but the **memory layer** that helps the agent improve over time.
+Much of the knowledge required to resolve these cases resides with **experienced AP employees rather than in reusable systems**.
+
+Thread adds a persistent vendor-memory and exception-resolution layer to existing AP and ERP systems. It:
+
+- **Retains** invoice exceptions and their outcomes
+- **Recalls** relevant vendor history when a new invoice arrives
+- **Reflects** repeated cases into proposed operational rules
+
+Existing systems remain responsible for invoice processing, accounting and payments. Thread supplies historical context, explainable recommendations and controlled workflow automation.
 
 ---
 
 ## The Problem
 
-Today, when a vendor raises a complaint such as:
+A typical AP workflow:
 
-- *"Why is my payment delayed?"*
-- *"Why was my invoice rejected?"*
-- *"Why was my PO not approved?"*
+```text
+invoice receipt → extraction → vendor identification → PO & goods-receipt matching
+→ tax and terms validation → approval → payment scheduling → ERP posting
+```
 
-Employees often have to manually search through **tickets, invoices, emails, payment records, purchase orders, and previous resolutions**.
+An exception occurs when any check fails:
 
-A lot of the context exists **only in senior employees' heads**.
+| Exception type | Example | Potential impact |
+| --- | --- | --- |
+| **Price mismatch** | PO ₹50,000; invoice ₹55,000 | Overpayment or dispute |
+| **Quantity mismatch** | PO 100 units; invoice 120 | Incorrect billing |
+| **Duplicate invoice** | Same invoice submitted twice | Double payment |
+| **Tax discrepancy** | Incorrect GST treatment or arithmetic | Compliance and reconciliation issues |
+| **Freight duplication** | Freight billed separately although included in the PO | Financial leakage |
+| **Missing approval** | Required authorization absent | Unauthorized payment |
+| **Payment-term mismatch** | Contract says Net 30; invoice says Net 15 | Dispute or premature payment |
+| **Vendor-specific exception** | Regional approval required | Processing delay |
+
+> The challenge is not only detecting an invoice mismatch. It is preserving institutional knowledge about how specific vendors behave, which exceptions were legitimate, who resolved them, and what evidence justified the outcome.
+
+A new employee should not need to rediscover the same vendor history by searching old email threads and ERP records.
 
 ---
 
-## What It Remembers
+## What Thread Remembers
 
-The agent stores and recalls a vendor's full working history:
-
-| Memory | Why it matters |
+| Memory | What it captures |
 | --- | --- |
-| 🏢 **Vendor history** | Who the vendor is and how the relationship has evolved |
-| 🎫 **Previous tickets** | What was raised before, and how often |
-| 🧾 **Invoices** | What was billed, disputed, or rejected |
-| 📦 **Purchase orders** | What was authorized and on what terms |
-| 💸 **Payment records** | What was paid, delayed, or still pending |
-| ✅ **Past resolutions** | What actually fixed the issue last time |
-| 🧑‍💼 **Human feedback** | Corrections and approvals from the team |
+| 🏢 **Vendor profile** | Legal name, GSTIN, payment terms, master-data status, aliases |
+| 🧾 **Invoices & line items** | Amounts, taxes, dates, extracted fields and source documents |
+| 📦 **Purchase orders** | Lines, quantities, prices, freight terms and contracts |
+| ⚠️ **Exceptions** | Type, severity, evidence references and status |
+| ✅ **Resolutions** | Proposed and final action, rationale and outcome |
+| 🧑‍💼 **Approvals & corrections** | Approver, decision, authority, timestamp and comments |
+| 🔁 **Validated rules** | Rule definition, source cases, scope, effective dates and owner |
+
+Every remembered fact stays linked to its source record and decision. Memory is **inspectable**, not a black box.
 
 ---
 
 ## How It Works
 
-When a new ticket arrives, the agent:
-
-1. **Recalls** similar historical cases
-2. **Explains** what happened previously
-3. **Suggests** a resolution
-4. **Shows the evidence** behind the recommendation
-
-Over time, it **learns recurring vendor patterns** and **proposes rules** — while still keeping **humans in the approval loop**.
-
 ```text
- Vendor complaint
-        │
-        ▼
- ┌──────────────────┐
- │  Memory layer    │  vendor history · tickets · invoices
- │  (recall)        │  POs · payments · resolutions · feedback
- └────────┬─────────┘
-          │  similar past cases + evidence
-          ▼
- ┌──────────────────┐
- │  Reasoning       │  what happened before
- │                  │  recommended next action
- └────────┬─────────┘
-          │
-          ▼
- ┌──────────────────┐
- │  Human review    │  approve · correct · give feedback
- └──────────────────┘
-          │
-          └──► learns patterns → proposes rules
+Invoice arrives
+      │
+      ▼
+┌──────────────────────┐
+│  Deterministic checks │  duplicates · totals · quantity · price · tax · terms
+└──────────┬───────────┘
+           │ exception
+           ▼
+┌──────────────────────┐
+│  Retain / Recall     │  vendor history · prior exceptions · resolutions
+└──────────┬───────────┘
+           │ exact evidence references
+           ▼
+┌──────────────────────┐
+│  Reasoning           │  recommendation · risk · approval route
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│  Human approval      │  approve · correct · give feedback
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│  Reflect             │  repeated cases → proposed vendor rule
+└──────────────────────┘
 ```
+
+**Critical safeguard:** repetition is not proof of correctness. Five prior approvals may all have been mistakes. A current contract, PO, tax rule or authorization matrix always overrides stale or contradictory memory.
 
 ---
 
 ## Example
 
-**Vendor:**
+**Vendor:** ABC Logistics · **Invoice:** INV-1020
 
-> Why is my payment delayed?
-
-**Agent:**
-
-> Four similar cases were found. In previous disputes, payment was delayed because freight charges were already included in the PO.
+> **Detected:** potential duplicate freight charge of ₹12,000.
 >
-> **Recommended action:** verify the current PO and escalate to AP manager.
+> **Evidence:** INV-1001, INV-1003 and INV-1005 had similar charges rejected; INV-1012 was confirmed by an AP manager.
+>
+> **Recommendation:** reject the additional freight component only if the current PO covers this shipment.
+>
+> **Confidence:** high historical similarity; contract verification required.
+>
+> **Route:** AP Manager. No payment action executed.
 
 ---
 
-## images
+## The Interface
+
+Thread lives inside the invoice system, not beside it:
+
+- A **floating Thread button** with a live notification badge for auto-detected exceptions
+- A **Thread inbox** grouped by severity, with vendor, amount at risk and age
+- **Evidence chips** on every recommendation that open the real invoice, PO, ticket or approval
+- A **memory inspector** showing what Thread knows, where it learned it, and when
+- An **approval queue** where humans decide; Thread never moves money on its own
+
+Full screen and interaction plan: [`docs/UI_PLAN.md`](docs/UI_PLAN.md)
+
+---
+
+## Screenshots
 
 <div align="center">
 
@@ -117,19 +166,62 @@ Over time, it **learns recurring vendor patterns** and **proposes rules** — wh
 
 ---
 
-## Open Questions
+## Run the demo
 
-This is an early concept, and feedback is very welcome:
+```bash
+npm install
+npm run dev
+```
 
-1. **Would this be useful in real organizations?**
-2. **What information would you expect the agent to remember?**
-3. **What would make you trust (or not trust) its recommendations?**
-4. **Have you seen similar systems being used successfully?**
+Open **http://localhost:5173**.
+
+**Five-minute path:**
+
+1. **Overview** shows the exception queue and the Thread badge — 3 unread, one red ring for high risk.
+2. Click **Simulate ERP sync** (top-bar chip or Overview button). Invoice `INV-1101` is ingested, the badge goes **3 → 4** with one pulse, and a toast reports the duplicate freight.
+3. Open the **Thread inbox** and review the new exception. Thread's analysis is already waiting.
+4. Expand **Why this**, then open `PO-8841`, `INV-1020` and the prior cases from the evidence chips.
+5. Approve the recommended action, confirm the PO check, and watch the exception resolve and the memory update.
+6. Open **Learning** and validate the freight-duplication rule.
+7. Reset from the avatar menu to return to the exact starting state.
+
+Built with React 19, TypeScript, Vite, Tailwind CSS 4, Zustand, React Router and Lucide.
+
+---
+
+## Demo Scope
+
+- **5 vendors · 100 invoices**, with recurring exception types, historical approvals, human corrections, payment terms and deliberately misleading cases
+- **Scenarios:** freight duplication, price mismatch, duplicate invoice, GST discrepancy, unusual vendor bank-detail change
+- **Progression to show:** unfamiliar exception → evidence-backed recommendation → human-validated rule → faster handling next time
+- **Always visible:** evidence citations, confidence, approval routing and an audit trail
+- **Never:** autonomous payment execution or a citation that cannot be resolved to a real record
+
+---
+
+## Evaluation
+
+| Metric | Definition |
+| --- | --- |
+| Exception precision | Share of flagged cases that are genuine exceptions |
+| Exception recall | Share of genuine exceptions detected |
+| Recommendation accuracy | Share judged correct by authorized reviewers |
+| Evidence accuracy | Whether cited cases exist and support the explanation |
+| Safe automation rate | Eligible exceptions handled within policy without manual resolution |
+| Resolution time | Detection to final resolution |
+| Verified leakage prevented | Confirmed avoided incorrect payments |
+
+Automation percentage alone is not success. A system that automatically approves incorrect invoices is unsafe.
+
+---
+
+## Docs
+
+- [UI plan](docs/UI_PLAN.md) — screens, Thread naming, badge behavior, demo storyboard, build phases
+- [AP Exception Agent research report](docs/AP_Exception_Agent_Research_Report.pdf) — problem definition, competitive analysis, architecture, governance, roadmap
 
 ---
 
 ## Tags
 
-`#AI` `#AIAgents` `#MachineLearning` `#EnterpriseAI` `#Hindsight` `#Startups` `#SaaS` `#FinanceTech` `#CustomerSupport` `#Automation`
-
-
+`#AccountsPayable` `#AIAgents` `#EnterpriseAI` `#VendorIntelligence` `#GST` `#FinanceTech` `#Automation` `#ProcureToPay`
